@@ -1,0 +1,7 @@
+RVSOD/
+.venv*
+*.pdf
+*.cpython
+__pycache__/
+*smoke*
+.DS_Store
