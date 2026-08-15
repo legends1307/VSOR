@@ -504,6 +504,9 @@ _C.MODEL.RESNETS.DEFORM_NUM_GROUPS = 1
 # ---------------------------------------------------------------------------- #
 _C.SOLVER = CN()
 
+# "SGD" or "ADAM" -- see detectron2/solver/build.py:build_optimizer
+_C.SOLVER.OPTIMIZER = "ADAM"
+
 # See detectron2/solver/build.py for LR scheduler options
 _C.SOLVER.LR_SCHEDULER_NAME = "WarmupMultiStepLR"
 

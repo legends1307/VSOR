@@ -6,5 +6,6 @@ from .build import META_ARCH_REGISTRY, build_model  # isort:skip
 
 # import all the meta_arch, so they will be registered
 from .rcnn import RankSaliencyNetwork
+from .salient_detector import SalientDetector
 
 from .binary_salient_build import build_Salient_predict

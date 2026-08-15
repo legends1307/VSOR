@@ -83,7 +83,7 @@ def inference(cfg, model):
                 model = fix_models[k]
                 fix_dir = os.path.join(fix_root_dir, model)
                 fix_img_dir = os.path.join(fix_dir, name)
-                fix_img = cv2.imread(fix_img_dir, 0).astype(np.float)
+                fix_img = cv2.imread(fix_img_dir, 0).astype(float)
                 fix_img /= 255
 
                 segs = copy.deepcopy(segmaps)

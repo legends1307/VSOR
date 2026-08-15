@@ -58,7 +58,22 @@ def get_rank_index(gt_masks, segmaps, iou_thread, rank_scores, name):
     return rank_index
 
 
-def evalu(results, iou_thread):
+def evalu(results, iou_thread, variant='original'):
+    """
+    variant='original': exclude single-instance images entirely (from both
+        sum and count) -- what this file already did, matches the official
+        upstream (dragonlee258079/Saliency-Ranking) code byte-for-byte.
+    variant='all': include single-instance images, contributing a score of 0
+        (dragging the average down) -- per ruisong8/VSOR-repro's protocol
+        documentation (assets/readme.md), the paper's reported SA-SOR numbers
+        appear to be Normalized-All ((mean+1)/2 of THIS variant), not
+        Normalized-Original -- verified against their own reported numbers:
+        All=0.2072 -> Normalized All=(0.2072+1)/2=0.6036 ~= their
+        Reported=0.603.
+    Returns the RAW (un-normalized, [-1,1]-range) mean. Normalize yourself
+    via (result+1)/2 if comparing directly to a paper's reported table value.
+    """
+    assert variant in ('original', 'all')
     print('\nCalculating Sprman ...\n')
     p_sum = 0
     num = len(results)
@@ -81,15 +96,17 @@ def evalu(results, iou_thread):
         # for i, seg in enumerate(segmaps):
         #     seg[seg >= 0.5] = color[i]
         #     all_segmaps += seg
-        # all_segmaps = all_segmaps.astype(np.int)
+        # all_segmaps = all_segmaps.astype(int)
         # result_dir = r'D:\dataset\salient_instance\SOC6K\soc_rank_saliency\test\result'
         # cv2.imwrite(os.path.join(result_dir, '{}.png'.format(name)), all_segmaps)
 
         #if name != 'COCO_val2014_000000202998.jpg':
         #    continue
 
-        if len(gt_ranks) ==1 :
-            num=num-1
+        if len(gt_ranks) == 1:
+            if variant == 'original':
+                num = num - 1
+            # variant=='all': keep it in the count, contribute 0 to p_sum (fall through)
             continue
 
         gt_index = np.array([sorted(gt_ranks).index(a) + 1 for a in gt_ranks])

@@ -1,4 +1,8 @@
 RVSOD/
+data/RVSOD_pkl/
+output/
+Rank_Saliency/
+*.pth
 .venv*
 *.pdf
 *.cpython

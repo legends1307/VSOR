@@ -34,7 +34,11 @@ logger = logging.getLogger("detectron2")
 
 def do_test(cfg, model, iteration):
     logger.info('testing {}.model'.format(iteration))
-    r_corre, m_f = inference(cfg, model)
+    # was: r_corre, m_f = inference(cfg, model) -- inference() returns a
+    # 3-tuple (r_corre, r_f, r_map), so this raised ValueError the moment
+    # periodic eval triggered during training. plain_train_net_our.py already
+    # had the correct 3-value unpack; this file was stale relative to it.
+    r_corre, m_f, _r_map = inference(cfg, model)
     mae, fm = m_f['mae'], m_f['f_measure']
     with open('corre.txt', 'a') as corre_file:
         corre_file.write('{:.4f}\n'.format(r_corre))
@@ -160,7 +164,9 @@ def main(args):
             model, device_ids=[comm.get_local_rank()], broadcast_buffers=False
         )
 
-    do_train(cfg, model, optimizer, scheduler, args.output_dir)
+    # was: do_train(cfg, model, optimizer, scheduler, args.output_dir) -- see
+    # plain_train_net_our.py for the same --resume fix and why it mattered.
+    do_train(cfg, model, optimizer, scheduler, args.output_dir, resume=args.resume)
     # return do_test(cfg, model)
 
 

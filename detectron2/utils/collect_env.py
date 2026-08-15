@@ -77,12 +77,21 @@ def collect_env_info():
         except ImportError:
             data.append(("detectron2._C", "failed to import"))
         else:
-            data.append(("detectron2 compiler", _C.get_compiler_version()))
-            data.append(("detectron2 CUDA compiler", _C.get_cuda_version()))
-            if has_cuda:
-                data.append(
-                    ("detectron2 arch flags", detect_compute_compatibility(CUDA_HOME, _C.__file__))
-                )
+            # SMOKE-TEST PATCH: _C here may be the stub in detectron2/_C.py
+            # (no compiled extension in this environment) -- its functions
+            # raise NotImplementedError when actually called, which is exactly
+            # what happens for these purely-informational diagnostic calls.
+            # This is best-effort logging, not something worth failing
+            # startup over.
+            try:
+                data.append(("detectron2 compiler", _C.get_compiler_version()))
+                data.append(("detectron2 CUDA compiler", _C.get_cuda_version()))
+                if has_cuda:
+                    data.append(
+                        ("detectron2 arch flags", detect_compute_compatibility(CUDA_HOME, _C.__file__))
+                    )
+            except NotImplementedError:
+                data.append(("detectron2 compiler", "unknown (detectron2._C stub, no compiled extension)"))
 
     data.append(get_env_module())
     data.append(("PyTorch", torch.__version__ + " @" + os.path.dirname(torch.__file__)))

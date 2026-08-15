@@ -1,0 +1,52 @@
+# Dependencies for running the vendored detectron2 fork (detectron2.zip,
+# extracted to ./detectron2/) and tools/*.py in this repo.
+#
+# Setup:
+#   python3 -m venv .venv-smoke
+#   source .venv-smoke/bin/activate
+#   pip install -r requirements.txt
+#   pip install torch torchvision   # see note below -- deliberately separate
+#
+# torch/torchvision are NOT pinned here on purpose: which wheel you want
+# depends on your hardware.
+#   - macOS: `pip install torch torchvision` from plain PyPI already gets the
+#     right (CPU/MPS) build.
+#   - Linux CPU-only: `pip install torch torchvision --index-url
+#     https://download.pytorch.org/whl/cpu` (plain PyPI defaults to a much
+#     larger CUDA-bundled wheel even with no GPU).
+#   - Linux + CUDA (needed for any real training run, see project notes on
+#     expected training time): install the build matching your CUDA version
+#     per pytorch.org's own selector.
+# Verified working together in this environment at time of writing: torch
+# 2.13.0 / torchvision 0.28.0 (CPU). detectron2's compiled C++/CUDA extension
+# (detectron2._C -- DeformConv, rotated ROIAlign/NMS) is NOT built against
+# whatever torch you install; see detectron2/_C.py (a stub -- those specific
+# ops are unused by RankSaliencyNetwork/SalientDetector) and
+# detectron2/layers/roi_align.py (rewired to torchvision.ops.roi_align).
+# Building the real extension is only needed if you touch code paths outside
+# this project's actual model (rotated boxes, deformable conv).
+
+numpy==2.5.2
+opencv-python-headless==5.0.0.93
+Pillow==12.2.0
+scipy==1.18.0
+pandas==3.0.5
+scikit-learn==1.9.0
+tqdm==4.70.0
+
+# detectron2's own dependency stack
+fvcore==0.1.5.post20221221
+iopath==0.1.10
+portalocker==4.1.0
+yacs==0.1.8
+termcolor==3.3.0
+tabulate==0.10.0
+cloudpickle==3.1.2
+tensorboardX==2.6.5
+tensorboard==2.21.0  # torch.utils.tensorboard.SummaryWriter needs this too, separate from tensorboardX above
+pycocotools==2.0.11
+
+# used by detectron2/modeling/roi_heads/mask_head.py and
+# detectron2/data/my_dataset_mapper.py respectively
+einops==0.8.2
+instaboostfast==0.1.2

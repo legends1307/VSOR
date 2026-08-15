@@ -52,7 +52,7 @@ def calu_mae(gt_ranks, rank_scores, gt_masks, segmaps, names):
             num -= 1
             no_seg.append(names[i])
             continue
-        gt_rank = np.asarray(gt_ranks[i]).astype(np.float)
+        gt_rank = np.asarray(gt_ranks[i]).astype(float)
         gt_rank = (gt_rank + 1) / len(gt_rank)
         rank_score = match_rank_scores(gt_masks[i], segmaps[i], rank_scores[i], names[i])
         m = np.mean(np.abs(gt_rank - rank_score))
@@ -86,9 +86,9 @@ def make_map(gt_rank, rank_score, gt_masks, segmaps):
     image_shape = segmaps.shape[1:]
     gt_map = np.zeros(image_shape)
     rank_map = np.zeros(image_shape)
-    gt_index = (np.asarray(gt_rank) + 1).astype(np.float)/len(gt_rank)
+    gt_index = (np.asarray(gt_rank) + 1).astype(float)/len(gt_rank)
     rank_index = [sorted(rank_score).index(a) for a in rank_score]
-    rank_index = (np.asarray(rank_index) + 1).astype(np.float)/len(rank_index)
+    rank_index = (np.asarray(rank_index) + 1).astype(float)/len(rank_index)
     for i in range(len(segmaps)):
         rank_map[segmaps[i] > 0.5] = rank_index[i]
     for i in range(len(gt_masks)):

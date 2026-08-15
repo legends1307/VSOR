@@ -97,7 +97,7 @@ def inference(cfg, model):
             #             'rank_scores': saliency_rank, 'img_name': name})
 
             segmaps1 = copy.deepcopy(segmaps)
-            all_segmaps = np.zeros_like(segmaps[0], dtype=np.float)
+            all_segmaps = np.zeros_like(segmaps[0], dtype=float)
             if len(pred_masks) != 0:
                 color_index = [sorted(saliency_rank).index(a) + 1 for a in saliency_rank]
                 color = [255. / len(saliency_rank) * a for a in color_index]
@@ -110,7 +110,7 @@ def inference(cfg, model):
                     seg[cover_region] = 0
                     all_segmaps += seg
                     cover_region = all_segmaps != 0
-                all_segmaps = all_segmaps.astype(np.int)
+                all_segmaps = all_segmaps.astype(int)
             cv2.imwrite('./saliency_maps/{}.png'.format(name[:-4]), all_segmaps)
 
             # print(len(res))

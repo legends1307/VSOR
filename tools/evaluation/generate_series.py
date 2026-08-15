@@ -41,7 +41,7 @@ def caculate_mask_iou_matrix(maskA, maskB):
 
 def generate_series(predicted_masks, image_name):
     annotation_root_dir = "/data/zhaowangbo/Video Object Segmentation/DAVIS2017 unsurprised/DAVIS-trainval/Annotations_unsupervised/480p/"
-    predicted_masks = predicted_masks.astype(np.int)
+    predicted_masks = predicted_masks.astype(int)
 
     gt = cv2.imread(annotation_root_dir + image_name.split("_")[0] + "/" + image_name.split("_")[1] + ".png")
     colors = list_colors(gt)

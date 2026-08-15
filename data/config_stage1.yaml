@@ -1,0 +1,67 @@
+MODEL:
+  META_ARCHITECTURE: "SalientDetector"
+  MASK_ON: True
+  # COCO-2017-pretrained Mask R-CNN R50-FPN, 3x schedule -- Detectron2's own
+  # official model zoo checkpoint. Loading this into a NUM_CLASSES=1 model
+  # (see below) will log a shape-mismatch warning for
+  # roi_heads.box_predictor.cls_score and leave just that layer randomly
+  # initialized -- expected and correct, everything else (backbone/FPN/RPN/
+  # box-feature convs/mask head convs) loads real pretrained weights.
+  # Run tools/dataset_prep/fetch_pretrained.sh first to populate this path --
+  # the detectron2:// catalog prefix doesn't resolve against the
+  # pip-installed fvcore in .venv-smoke, so it has to be a local file here.
+  WEIGHTS: "/tmp/pretrained/mask_rcnn_R_50_FPN_3x_coco.pkl"
+  BACKBONE:
+    NAME: "build_resnet_fpn_backbone"
+  RESNETS:
+    OUT_FEATURES: ["res2", "res3", "res4", "res5"]
+  FPN:
+    IN_FEATURES: ["res2", "res3", "res4", "res5"]
+    IN_STRIDES: [4, 8, 16, 32]
+    IN_CHANNELS: [256, 512, 1024, 2048]
+  ANCHOR_GENERATOR:
+    SIZES: [[32], [64], [128], [256], [512]]
+    ASPECT_RATIOS: [[0.5, 1.0, 2.0]]
+  RPN:
+    IN_FEATURES: ["p2", "p3", "p4", "p5", "p6"]
+    PRE_NMS_TOPK_TRAIN: 2000
+    PRE_NMS_TOPK_TEST: 1000
+    POST_NMS_TOPK_TRAIN: 1000
+    POST_NMS_TOPK_TEST: 1000
+  ROI_HEADS:
+    NAME: "StandardROIHeads"
+    IN_FEATURES: ["p2", "p3", "p4", "p5"]
+    # already the fork's own default (1), spelled out here for clarity:
+    # paper's box head is a binary object/non-object classifier.
+    NUM_CLASSES: 1
+  ROI_BOX_HEAD:
+    NAME: "FastRCNNConvFCHead"
+    NUM_FC: 2
+    POOLER_RESOLUTION: 7
+    PERSON_HEAD: "FastRCNNFCHead"
+  ROI_MASK_HEAD:
+    NAME: "MaskRCNNConvUpsampleHead"
+    NUM_CONV: 4
+    POOLER_RESOLUTION: 14
+DATASETS:
+  # Same converted RVSOD instances as stage 2 -- stage 1 just doesn't use the
+  # `rank` field at all (SalientDetector never reads it).
+  TRAIN: ("data/RVSOD_pkl/train.pkl",)
+  TEST: ("data/RVSOD_pkl/test.pkl",)
+SOLVER:
+  IMS_PER_BATCH: 1
+  OPTIMIZER: "SGD"
+  # Paper section 4.1, stage 1: SGD, initial LR 5e-3 (warmup), x10 decay at
+  # steps 420,000 and 500,000.
+  BASE_LR: 0.005
+  STEPS: (420000, 500000)
+  MAX_ITER: 500000
+  CHECKPOINT_PERIOD: 10000
+  # WARMUP_ITERS/WARMUP_FACTOR/WARMUP_METHOD left at Detectron2 defaults
+  # (1000 iters, linear) -- paper doesn't specify warmup length.
+TEST:
+  EVAL_PERIOD: 0   # SalientDetector has no rank output; the shared eval code expects one
+INPUT:
+  MIN_SIZE_TRAIN: (640, 672, 704, 736, 768, 800)
+VERSION: 2
+OUTPUT_DIR: './output/rvsod_stage1'

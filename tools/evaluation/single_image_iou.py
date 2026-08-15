@@ -11,7 +11,7 @@ def single_image_iou(predicted_masks, image_name):
     gt_masks = ann["segs"]
 
     #binary
-    predicted_masks = predicted_masks.astype(np.int)
+    predicted_masks = predicted_masks.astype(int)
 
     if predicted_masks.shape[0] < gt_masks.shape[0]:
         predicted_masks = np.concatenate((predicted_masks, np.zeros([gt_masks.shape[0]-predicted_masks.shape[0], predicted_masks.shape[1], predicted_masks.shape[2]])), axis=0)

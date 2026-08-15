@@ -130,8 +130,18 @@ def build_optimizer(cfg: CfgNode, model: torch.nn.Module) -> torch.optim.Optimiz
                 weight_decay = cfg.SOLVER.WEIGHT_DECAY_BIAS
             params += [{"params": [value], "lr": lr, "weight_decay": weight_decay}]
 
-    # optimizer = torch.optim.SGD(params, cfg.SOLVER.BASE_LR, momentum=cfg.SOLVER.MOMENTUM)
-    optimizer = torch.optim.Adam(params, cfg.SOLVER.BASE_LR)
+    # Paper section 4.1: stage 1 (detector pretraining) uses SGD; stage 2
+    # (graph fine-tuning) uses Adam. This was previously hardcoded to Adam
+    # only (SGD line commented out) -- gated by cfg.SOLVER.OPTIMIZER so
+    # existing Adam-based configs (e.g. data/config_rvsod.yaml, stage 2)
+    # keep working unchanged.
+    optimizer_name = getattr(cfg.SOLVER, "OPTIMIZER", "ADAM")
+    if optimizer_name == "SGD":
+        optimizer = torch.optim.SGD(params, cfg.SOLVER.BASE_LR, momentum=cfg.SOLVER.MOMENTUM)
+    elif optimizer_name == "ADAM":
+        optimizer = torch.optim.Adam(params, cfg.SOLVER.BASE_LR)
+    else:
+        raise ValueError(f"Unknown cfg.SOLVER.OPTIMIZER: {optimizer_name!r} (expected SGD or ADAM)")
     optimizer = maybe_add_gradient_clipping(cfg, optimizer)
     return optimizer
 

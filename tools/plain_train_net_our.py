@@ -183,7 +183,10 @@ def main(args):
             model, device_ids=[comm.get_local_rank()], broadcast_buffers=False
         )
 
-    do_train(cfg, model, optimizer, scheduler, args.output_dir)
+    # was: do_train(cfg, model, optimizer, scheduler, args.output_dir) -- args.resume
+    # was silently dropped (do_train's default resume=False always won), so a
+    # run interrupted mid-training could never actually be resumed via --resume.
+    do_train(cfg, model, optimizer, scheduler, args.output_dir, resume=args.resume)
     # return do_test(cfg, model)
 
 

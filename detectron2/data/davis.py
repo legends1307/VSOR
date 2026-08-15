@@ -42,34 +42,17 @@ class davis_val(Dataset):
         self.load_proposals = False
 
         self.is_train = is_train
-        self.video_dir = '/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/ranks_SPKL/test.pkl'
-
-        #self.video_dir = '/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/ranks_SPKL/train.pkl'
-
-        #self.video_dir = "/home/zyf/code/Saliency-Ranking-main/dataset/Annotations/test.pkl"
-        #self.video_dir ='/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/new_pkl/test_all_f.pkl'
-
-        #self.video_dir ='/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/new_pkl/not_all/test_rank.pkl'
-
-        # self.video_dir='/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/ranks_SPKL/test_f_35.pkl'
-        #self.video_dir='/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/new_pkl/not_all/test_f.pkl'
-        #self.video_dir ='/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/new_pkl/not_all/train_rank.pkl'
-        #self.video_dir = '/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/test_fff.pkl'
-        #self.video_dir = '/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/ranks_SPKL/test_f_35.pkl'
-
-        #self.video_dir = '/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/ranks_SPKL/resize_pkl/test_all.pkl'
-        #self.video_dir = '/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/ranks_SPKL/resize_pkl/test_Salient.pkl'
-
-        #self.video_dir = '/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/ranks_SPKL/test_f_35.pkl'
-        #self.video_dir = '/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/<20SPKL/test.pkl'
-        #self.video_dir = '/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/ranks_PosPKL/test.pkl'
-        #self.video_dir = '/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/Train.pkl'
-
-        # self.video_dir = "/disk2/lilong/Rank_Saliency/Dataset/dataset_test.pkl"
-        # self.video_dir = '/home/lilong/project/rank_saliency/detectron2/4_add_eval/tools/dataset_input_test.pkl'
-        # self.video_dir = ""
-        # self.img_root_dir = '/data/lilong/coco/coco_2014/images/'
-        # self.image_names = pickle.load(open("/data1/lilong/rank_saliency/dataset/AoANet/image_names.pkl", 'rb'))
+        # SMOKE-TEST PATCH: this constructor takes `cfg` but the original
+        # code never actually used it -- self.video_dir was hardcoded to the
+        # author's own machine path (with ~15 more commented-out alternatives
+        # below, all equally hardcoded), completely ignoring
+        # cfg.DATASETS.TEST/TRAIN. Verified: this broke evaluation entirely
+        # (FileNotFoundError against a path that only ever existed on the
+        # author's machine) regardless of what the config said.
+        if cfg is not None:
+            self.video_dir = cfg.DATASETS.TRAIN[0] if is_train else cfg.DATASETS.TEST[0]
+        else:
+            self.video_dir = '/home/zyf/code/Saliency-Ranking-main/dataset/RVSOD/RVSOD/ranks_SPKL/test.pkl'
         f = open(self.video_dir, 'rb')
         self.dataset_list = pickle.load(f)
 

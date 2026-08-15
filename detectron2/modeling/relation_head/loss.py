@@ -1,4 +1,5 @@
 import torch
+from torch.nn import functional as F
 
 
 class RelationLossComputation(object):
@@ -30,7 +31,12 @@ class RelationLossComputation(object):
         R[R > 0] = 1
         R[R < 0] = -1
         S = S * R
-        S = torch.log(1+torch.exp(S))
+        # was: S = torch.log(1 + torch.exp(S)) -- a hand-rolled softplus that
+        # overflows to inf for large S (verified: hit inf on our very first
+        # real training-loop test). F.softplus is numerically identical for
+        # normal-range inputs but switches to the identity function for large
+        # inputs (threshold=20 by default) instead of computing exp() at all.
+        S = F.softplus(S)
         S[R == 0] = 0
         S = torch.triu(S, 1)
         B = torch.abs((R1 - R2).to(saliency_score.device).float())

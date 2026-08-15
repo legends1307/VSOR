@@ -136,7 +136,7 @@ def inference(cfg, model,draw=False):
                 # if i==20:
                 #     break
                 # segmaps1 = copy.deepcopy(segmaps)
-                # all_segmaps = np.zeros_like(gt_masks[0], dtype=np.float)
+                # all_segmaps = np.zeros_like(gt_masks[0], dtype=float)
                 # if len(pred_masks) != 0:
                 #     color_index = [sorted(saliency_rank).index(a) + 1 for a in saliency_rank]
                 #     color = [255. / len(saliency_rank) * a for a in color_index]
@@ -149,7 +149,7 @@ def inference(cfg, model,draw=False):
                 #         seg[cover_region] = 0
                 #         all_segmaps += seg
                 #         cover_region = all_segmaps != 0
-                #     all_segmaps = all_segmaps.astype(np.int)
+                #     all_segmaps = all_segmaps.astype(int)
                 # cv2.imwrite('./saliency_maps/{}.png'.format(name[:-4]), all_segmaps)
 
                 # print(len(res))
@@ -192,7 +192,7 @@ def inference(cfg, model,draw=False):
                     gt_mask_img=cv2.imread(img_name2.replace('jpg','png'),0)
                 
                     gt_map = np.zeros((image_shape[0],image_shape[1]))
-                    gt_index = (np.asarray(gt_ranks) + 1).astype(np.float)
+                    gt_index = (np.asarray(gt_ranks) + 1).astype(float)
                     color = [255. / len(gt_ranks) * a for a in gt_index]
                     for i in range(len(gt_masks)):
                         gt_map[gt_masks[i] != 0] = color[i]
@@ -219,7 +219,7 @@ def inference(cfg, model,draw=False):
                         segmaps[j, y0:y1, x0:x1] = segmap
 
                     segmaps1 = copy.deepcopy(segmaps)
-                    all_segmaps = np.zeros_like(gt_masks[0], dtype=np.float)
+                    all_segmaps = np.zeros_like(gt_masks[0], dtype=float)
                     if len(pred_masks) != 0:
                         color_index = [sorted(saliency_rank).index(a) + 1 for a in saliency_rank]
                         color = [255. / len(saliency_rank) * a for a in color_index]
@@ -233,7 +233,7 @@ def inference(cfg, model,draw=False):
                             seg[cover_region] = 0
                             all_segmaps += seg
                             cover_region = all_segmaps != 0
-                        all_segmaps = all_segmaps.astype(np.int)
+                        all_segmaps = all_segmaps.astype(int)
                     #cv2.imwrite('/home/zyf/code/Saliency-Ranking-main/tools/draw_mask/'+str(i)+'.jpg', all_segmaps)
 
                     imgs_d=np.hstack([gt_map,all_segmaps])           
@@ -242,9 +242,14 @@ def inference(cfg, model,draw=False):
                     # imgs_r=np.vstack([imgs_c,imgs_d])
                     # cv2.imwrite('/home/zyf/code/Saliency-Ranking-main/tools/draw_res_epoch1/'+img_name.split('/')[-1], imgs_r)
 
-            except:
+            except Exception as _e:
+                # was a bare `except:` printing only the filename -- which
+                # silently swallowed the actual error, so "wrong figure=N"
+                # gave no clue what N images actually failed on. Print the
+                # exception type/message so the failures are diagnosable.
                 no_figure+=1
-                print(inputs[0][1]["file_name"].split('/')[-1])
+                print('{}  SKIPPED: {}: {}'.format(
+                    inputs[0][1]["file_name"].split('/')[-1], type(_e).__name__, _e))
 
                 # res_mae.append({'gt_masks': gt_masks, 'segmaps': np.zeros([len(pred_masks), image_shape[0], image_shape[1]]), 'scores': [0], 'gt_ranks': gt_ranks,
                 #             'rank_scores': [0], 'img_name': name,'gt_boxes':gt_boxes})
@@ -254,9 +259,16 @@ def inference(cfg, model,draw=False):
         #     r_corre = rank_evalu(res, k)
         #     print(r_corre)
         print('wrong figure=',no_figure)
-        r_corre = rank_evalu(res, 0.5)
+        r_corre = rank_evalu(res, 0.5)  # variant='original' (default) -- excludes single-instance images
+        # Per ruisong8/VSOR-repro's protocol documentation, the paper's reported
+        # SA-SOR numbers appear to be Normalized-All, not Normalized-Original --
+        # compute both here (reuses the already-built `res`, no extra model
+        # forward passes) so eval_checkpoint.py can report the directly
+        # comparable number without re-running inference.
+        r_corre_all = rank_evalu(res, 0.5, variant='all')
         #r_map=mf_map(res)
         r_f = mf_evalu(res_mae)
+        r_f['sasor_all'] = r_corre_all
 
         return r_corre, r_f,0
         #return 0, {"mae": 0, "f_measure": 0},0
