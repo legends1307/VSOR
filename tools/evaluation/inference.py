@@ -260,11 +260,7 @@ def inference(cfg, model,draw=False):
         #     print(r_corre)
         print('wrong figure=',no_figure)
         r_corre = rank_evalu(res, 0.5)  # variant='original' (default) -- excludes single-instance images
-        # Per ruisong8/VSOR-repro's protocol documentation, the paper's reported
-        # SA-SOR numbers appear to be Normalized-All, not Normalized-Original --
-        # compute both here (reuses the already-built `res`, no extra model
-        # forward passes) so eval_checkpoint.py can report the directly
-        # comparable number without re-running inference.
+        
         r_corre_all = rank_evalu(res, 0.5, variant='all')
         #r_map=mf_map(res)
         r_f = mf_evalu(res_mae)
