@@ -1,0 +1,51 @@
+====================================================================
+checkpoint : external_sources_outputs/model_0099999.pth
+config     : data/config_rvsod.yaml
+split      : test   (40 images, --limit 40)
+device     : cpu
+timestamp  : 2026-08-19T03:08:45
+tag        : greyscale-pkl baseline check
+====================================================================
+
+--- METRICS ---
+SA-SOR (Original, excl. single-instance) : 0.8000   <- what zyf-815's code reports
+SA-SOR (All, single-instance counted 0)  : 0.3000
+SA-SOR (Normalized Original, (x+1)/2)    : 0.9000
+SA-SOR (Normalized All, (x+1)/2)         : 0.6500
+MAE (SOD-style, binarized)               : 0.0193
+F-measure                                : 0.0000  (hardcoded 0 upstream; not computed)
+
+paper Table 1 'Ours' on RVSOD: SA-SOR 0.603, MAE 0.0698
+(the paper never states WHICH SA-SOR variant it reports -- see
+ evaluation/spearman_correlation.py docstring)
+
+--- MODEL / TRAINABLE PARAMETERS ---
+total parameters      : 135,479,133
+trainable parameters  : 135,256,733
+frozen parameters     : 222,400
+
+per top-level module (trainable / total):
+    backbone                 26,576,896 /   26,799,296
+    bottom_up_fuse            1,574,144 /    1,574,144
+    conv2d1                       1,088 /        1,088
+    conv2d2                     262,400 /      262,400
+    panet_fpn                 4,720,640 /    4,720,640
+    proposal_generator          593,935 /      593,935
+    roi_heads                50,387,721 /   50,387,721
+    relation_head            51,139,909 /   51,139,909
+
+--- CONFIG ---
+META_ARCHITECTURE     : RankSaliencyNetwork
+MASK_ON               : True
+BACKBONE              : build_resnet_fpn_backbone
+ROI_HEADS.NUM_CLASSES : 1
+SCORE_THRESH_TEST     : 0.05
+RELATION_HEAD         : RelationHead
+  Relation_Unit_Nums  : 8
+  POOLER_EXPAND_RATIO : 2
+  MLP_HEAD_DIM        : 1024
+SOLVER.OPTIMIZER      : ADAM
+SOLVER.BASE_LR        : 5e-06
+SOLVER.STEPS          : (80000, 150000)
+SOLVER.MAX_ITER       : 200000
+SOLVER.IMS_PER_BATCH  : 1

@@ -1,0 +1,2 @@
+timestamp	checkpoint	split	n_images	n_scored	sasor_original	sasor_all	sasor_norm_original	sasor_norm_all	mae	trainable_params	tag
+2026-08-19T03:08:45	model_0099999	test	40	15	0.8000	0.3000	0.9000	0.6500	0.0193	135256733	greyscale-pkl baseline check

@@ -1,0 +1,13 @@
+split           : test
+rank source     : greyscale png only (no .mat)
+frames converted: 3149
+skipped         : {"no salient instances": 15, "missing .png": 12}
+instances/frame : min=1 max=6 mean=1.75
+instance-count distribution:
+    1 instance(s): 1375 (43.7%)
+    2 instance(s): 1343 (42.6%)
+    3 instance(s): 319 (10.1%)
+    4 instance(s): 74 (2.3%)
+    5 instance(s): 25 (0.8%)
+    6 instance(s): 13 (0.4%)
+wrote: data/RVSOD_pkl/test.pkl

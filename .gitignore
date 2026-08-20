@@ -9,3 +9,6 @@ Rank_Saliency/
 __pycache__/
 *smoke*
 .DS_Store
+efd.txt
+rsm.txt
+*_fixations.jpg

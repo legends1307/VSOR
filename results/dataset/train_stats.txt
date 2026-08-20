@@ -1,0 +1,14 @@
+split           : train
+rank source     : greyscale png only (no .mat)
+frames converted: 5317
+skipped         : {"no salient instances": 19}
+instances/frame : min=1 max=7 mean=1.85
+instance-count distribution:
+    1 instance(s): 2346 (44.1%)
+    2 instance(s): 1923 (36.2%)
+    3 instance(s): 652 (12.3%)
+    4 instance(s): 302 (5.7%)
+    5 instance(s): 66 (1.2%)
+    6 instance(s): 26 (0.5%)
+    7 instance(s): 2 (0.0%)
+wrote: data/RVSOD_pkl/train.pkl

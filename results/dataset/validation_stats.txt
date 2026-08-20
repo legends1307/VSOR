@@ -1,0 +1,13 @@
+split           : validation
+rank source     : greyscale png only (no .mat)
+frames converted: 1996
+skipped         : {"no salient instances": 17}
+instances/frame : min=1 max=6 mean=1.81
+instance-count distribution:
+    1 instance(s): 835 (41.8%)
+    2 instance(s): 852 (42.7%)
+    3 instance(s): 192 (9.6%)
+    4 instance(s): 92 (4.6%)
+    5 instance(s): 24 (1.2%)
+    6 instance(s): 1 (0.1%)
+wrote: data/RVSOD_pkl/validation.pkl

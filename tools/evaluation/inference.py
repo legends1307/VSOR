@@ -265,6 +265,9 @@ def inference(cfg, model,draw=False):
         #r_map=mf_map(res)
         r_f = mf_evalu(res_mae)
         r_f['sasor_all'] = r_corre_all
+        from .spearman_correlation import LAST_NUM
+        r_f['n_scored'] = LAST_NUM.get('original', '?')
+        r_f['n_failed'] = no_figure
 
         return r_corre, r_f,0
         #return 0, {"mae": 0, "f_measure": 0},0

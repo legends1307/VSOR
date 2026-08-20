@@ -58,20 +58,29 @@ def get_rank_index(gt_masks, segmaps, iou_thread, rank_scores, name):
     return rank_index
 
 
+LAST_NUM = {}  # variant -> number of images actually scored (exposed for reporting)
+
+
 def evalu(results, iou_thread, variant='original'):
     """
     variant='original': exclude single-instance images entirely (from both
         sum and count) -- what this file already did, matches the official
         upstream (dragonlee258079/Saliency-Ranking) code byte-for-byte.
     variant='all': include single-instance images, contributing a score of 0
-        (dragging the average down) -- per ruisong8/VSOR-repro's protocol
-        documentation (assets/readme.md), the paper's reported SA-SOR numbers
-        appear to be Normalized-All ((mean+1)/2 of THIS variant), not
-        Normalized-Original -- verified against their own reported numbers:
-        All=0.2072 -> Normalized All=(0.2072+1)/2=0.6036 ~= their
-        Reported=0.603.
+        (dragging the average down). Always <= the 'original' variant.
+
+    WHICH VARIANT THE PAPER REPORTED IS UNKNOWN. The paper never states it.
+    ruisong8/VSOR-repro (a third-party reproduction) publishes all variants
+    precisely because, in their words, "it remains unclear which variant the
+    original paper actually reported". There is a suggestive numerical
+    coincidence -- (0.2072+1)/2 = 0.6036 ~= the paper's reported 0.603 --
+    which would imply Normalized-All, but that is an inference from one
+    matching number, NOT something anyone has confirmed. Note 0.207 is also
+    exactly the paper's reported DAVSOD figure, so the coincidence is weak
+    evidence. Treat cross-paper comparisons as provisional.
+
     Returns the RAW (un-normalized, [-1,1]-range) mean. Normalize yourself
-    via (result+1)/2 if comparing directly to a paper's reported table value.
+    via (result+1)/2 if you want the [0,1] presentation.
     """
     assert variant in ('original', 'all')
     print('\nCalculating Sprman ...\n')
@@ -151,6 +160,7 @@ def evalu(results, iou_thread, variant='original'):
         num=1
     fianl_p = p_sum/num
     print('num=',num)
+    LAST_NUM[variant] = num
     print(fianl_p)
     return fianl_p
 
